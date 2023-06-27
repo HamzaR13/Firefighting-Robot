@@ -1,0 +1,116 @@
+/*
+  Hamza Rana
+  TDR4M1-01-20
+  Mr.Gunby
+  11/17/2020
+  Fire Fighting Robot
+  This program controls my fire fighting/detecting robot to move forward untill it detects a wall, then turn in a random direction and move forward again when open
+  space is found. Eventually finding its way through the maze, the robot will find a candle and be able to detect it which will turn on a red LED and stop the robot 
+  from moving for confirmation that the LED has in fact been found.
+*/
+
+#include <Servo.h> 
+ 
+Servo right;                                    // create servo object to control a servo 
+Servo left;                                     // create servo object to control a servo 
+const int trigPin = 11;                         // sets trigPin @pin 11
+const int echoPin = 12;                         // sets echoPin @pin 12
+int pos = 0;                                    // start robot at zero
+long duration, distance;                        // initializing duration distance
+long randNumber;                                // initializing random number function
+int led = 2;                                    // sets LED @pin A2
+
+void setup() 
+{
+  Serial.begin(9600);                           // initialize serial communication at 9600 bits per second:
+  pinMode(trigPin, OUTPUT);                     // sets trigPin as OUTPUT
+  pinMode(echoPin, INPUT);                      // sets echoPin as INPUT
+  
+  right.attach(9);                              // attaches the servo on pin 9 to the servo 
+  left.attach(7);                               // attaches the servo on pin 7 to the servo  
+  
+  randomSeed(analogRead(0));                    // initializing and shuffling random function
+
+  pinMode(led, OUTPUT);                         // sets led as OUTPUT
+}
+
+void loop()
+{ 
+  int sensorValue = analogRead(A2);             // read the input on analog pin A2:
+  
+  if (sensorValue> 50) {                        // if LED sensor value > 50 then turn on LED
+  digitalWrite(led, HIGH);                
+  }                                           
+  if (sensorValue< 100) {                       // if LED sensor value < 100 keep LED off
+    digitalWrite(led, LOW);
+  }
+  if (sensorValue> 50) {                        // when LED on then exit loop resulting in robot stopping
+    loop; exit(0);
+  }
+  
+  randNumber = random(200);                     // print a random number from 0 to 199
+
+  // initializing sensor distance conversion                    
+  Serial.print("Sensor Starting, ");            
+  long duration, inches, cm;
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration / 58.2;                  // convert to distance
+  delay(10);
+  
+
+  inches = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+  
+  
+  Serial.print(inches);                       // printing out sensor distance to serial monitor in inches 
+  Serial.print("in, ");
+  Serial.print(cm);                           // printing out sensor distance to serial monitor in centimeters
+  Serial.print("cm");
+  Serial.println();
+
+
+  //IF DISTANCE BETWEEN SESNSOR AND OBJECT > 10
+  if (distance > 10)
+  {
+    //FRONTWARD
+    for(pos = 0; pos <= 0; pos += 1)          // declares duration of movement (infinite)
+    {                                         
+    right.write(180);                         // tell servo to go to position in variable 'pos' 
+    left.write(0);                            // tell servo to go to position in variable 'pos' 
+    delay(15);                                // waits 15ms for the servo to reach the position 
+    } 
+  }
+
+  //IF DISTANCE BETWEEN SENSOR AND OBJECT < 10
+  if (distance < 10)
+  {
+    //MOVE BACKWARD
+    for(pos = 0; pos <=15; pos += 1)          // declares duration of movement
+    {                                
+    right.write(0);               
+    left.write(180);                                     
+    delay(15);                                // waits 15ms for the servo to reach the position 
+    }  
+    //TURN RANDOM DIRECTION
+    for(pos = 0; pos <=60; pos += 1)          // declares duration of movement (0-60)
+    {                                
+    right.write(randNumber);                  // tell servo to go to in random position
+    left.write(randNumber);                   // tell servo to go to in random position
+    delay(15);                                // waits 15ms for the servo to reach the position 
+    } 
+  }  
+}
+
+
+long microsecondsToInches(long microseconds) {            // converting microseconds to inches
+  return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds) {       // converting microseconds to centimeters
+  return microseconds / 29 / 2;
+} 
