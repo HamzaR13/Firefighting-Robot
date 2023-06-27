@@ -1,8 +1,6 @@
 /*
   Hamza Rana
-  TDR4M1-01-20
-  Mr.Gunby
-  11/17/2020
+
   Fire Fighting Robot
   This program controls my fire fighting/detecting robot to move forward untill it detects a wall, then turn in a random direction and move forward again when open
   space is found. Eventually finding its way through the maze, the robot will find a candle and be able to detect it which will turn on a red LED and stop the robot 
